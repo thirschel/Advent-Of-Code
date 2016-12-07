@@ -1,23 +1,134 @@
-## --- Day 17: No Such Thing as Too Much ---
+## --- Day 18: Like a GIF For Your Yard ---
 
-The elves bought too much eggnog again - 150 liters this time. To fit it all into your refrigerator, you'll need to move it into smaller containers. You take an inventory of the capacities of the available containers.
+After the million lights incident, the fire code has gotten stricter: now, at most ten thousand lights are allowed. You arrange them in a 100x100 grid.
 
-For example, suppose you have containers of size 20, 15, 10, 5, and 5 liters. If you need to store 25 liters, there are four ways to do it:
+Never one to let you down, Santa again mails you instructions on the ideal lighting configuration. With so few lights, he says, you'll have to resort to animation.
 
-15 and 10
-20 and 5 (the first 5)
-20 and 5 (the second 5)
-15, 5, and 5
-Filling all containers entirely, how many different combinations of containers can exactly fit all 150 liters of eggnog?
+Start by setting your lights to the included initial configuration (your puzzle input). A # means "on", and a . means "off".
 
-**_Your puzzle answer was 1638._**
+Then, animate your grid in steps, where each step decides the next configuration based on the current one. Each light's next state (either on or off) depends on its current state and the current states of the eight lights adjacent to it (including diagonals). Lights on the edge of the grid might have fewer than eight neighbors; the missing ones always count as "off".
 
-## --- Part Two ---
+For example, in a simplified 6x6 grid, the light marked A has the neighbors numbered 1 through 8, and the light marked B, which is on an edge, only has the neighbors marked 1 through 5:
 
-While playing with all the containers in the kitchen, another load of eggnog arrives! The shipping and receiving department is requesting as many containers as you can spare.
+```
+1B5...
+234...
+......
+..123.
+..8A4.
+..765.
+```
 
-Find the minimum number of containers that can exactly fit all 150 liters of eggnog. How many different ways can you fill that number of containers and still hold exactly 150 litres?
+The state a light should have next is based on its current state (on or off) plus the number of neighbors that are on:
 
-In the example above, the minimum number of containers was two. There were three ways to use that many containers, and so the answer there would be 3.
+A light which is on stays on when 2 or 3 neighbors are on, and turns off otherwise.
+A light which is off turns on if exactly 3 neighbors are on, and stays off otherwise.
+All of the lights update simultaneously; they all consider the same current state before moving to the next.
 
-**_Your puzzle answer was 17._**
+Here's a few steps from an example configuration of another 6x6 grid:
+
+```
+Initial state:
+.#.#.#
+...##.
+#....#
+..#...
+#.#..#
+####..
+
+After 1 step:
+..##..
+..##.#
+...##.
+......
+#.....
+#.##..
+
+After 2 steps:
+..###.
+......
+..###.
+......
+.#....
+.#....
+
+After 3 steps:
+...#..
+......
+...#..
+..##..
+......
+......
+
+After 4 steps:
+......
+......
+..##..
+..##..
+......
+......
+After 4 steps, this example has four lights on.
+```
+
+In your grid of 100x100 lights, given your initial configuration, how many lights are on after 100 steps?
+
+**_Your puzzle answer was 768._**
+
+--- Part Two ---
+
+You flip the instructions over; Santa goes on to point out that this is all just an implementation of Conway's Game of Life. At least, it was, until you notice that something's wrong with the grid of lights you bought: four lights, one in each corner, are stuck on and can't be turned off. The example above will actually run like this:
+
+```
+Initial state:
+##.#.#
+...##.
+#....#
+..#...
+#.#..#
+####.#
+
+After 1 step:
+#.##.#
+####.#
+...##.
+......
+#...#.
+#.####
+
+After 2 steps:
+#..#.#
+#....#
+.#.##.
+...##.
+.#..##
+##.###
+
+After 3 steps:
+#...##
+####.#
+..##.#
+......
+##....
+####.#
+
+After 4 steps:
+#.####
+#....#
+...#..
+.##...
+#.....
+#.#..#
+
+After 5 steps:
+##.###
+.##..#
+.##...
+.##...
+#.#...
+##...#
+After 5 steps, this example now has 17 lights on.
+```
+
+In your grid of 100x100 lights, given your initial configuration, but with the four corners always in the on state, how many lights are on after 100 steps?
+
+**_Your puzzle answer was 781._**
