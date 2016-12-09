@@ -16,11 +16,11 @@ The codes are printed on an infinite sheet of paper, starting in the top-left co
 |       | 1     | 2     | 3     | 4     | 5     |6      |
 |-------|-------|-------|-------|-------|-------|-------|
 | **1** | 1     | 3     |6      |10     | 15    | 21    |
-| **2** | 2     | 5     |9      | 14    | 20    |       |
-| **3** | 4     | 8     |13     | 19    |       |       |
-| **4** | 7     | 12    |18     |       |       |       |
-| **5** | 11    | 17    |       |       |       |       |
-| **6** | 16    |       |       |       |       |       |
+| **2** | 2     | 5     |9      | 14    | 20    |    -   |
+| **3** | 4     | 8     |13     | 19    |   -    |    -   |
+| **4** | 7     | 12    |18     |   -    |   -    |   -    |
+| **5** | 11    | 17    |    -   |   -    |   -    |   -    |
+| **6** | 16    |   -    |   -    |   -    |  -     |   -    |
 
 For example, the 12th code would be written to row 4, column 2; the 15th code would be written to row 1, column 5.
 

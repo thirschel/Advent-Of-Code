@@ -21,4 +21,4 @@ for (var i = 1; i < input; i++) {
 }
 
 console.log('First part: ' + houseNumber);
-console.log('Second part: '+houseNumber2);
+console.log('Second part: '+ houseNumber2);
