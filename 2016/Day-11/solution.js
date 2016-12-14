@@ -13,22 +13,22 @@ input.forEach((i,j)=>{
   var parsed = parseInput(i);
   startingFloors[j+1] = parsed.equipment || [];
 })
+console.log(startingFloors);
 
-
-const isFloorsValid = (floors, previousFloors) =>{
+const isFloorsValid = (floors, elevator, previousFloors) =>{
   for(var f=1;f<=4;f++){
     var chips = floors[f].filter(i=>i.includes('microchip'));
     var generators = floors[f].filter(i=>!i.includes('microchip'));
     for(var c=0;c<chips.length;c++){
       if(generators.length > 0 && !generators.some(g=>g.includes(chips[c].split('-')[0]))){
-         return false
+        return false
       }
     }
-  };
-  return !previousFloors.has(getHash(floors));
+  }
+  return previousFloors.indexOf(getHash(floors,elevator)) < 0;
 }
 
-const getHash = (floors) =>{
+const getHash = (floors,elevator) =>{
   var pairs =[];
   for(var f=1;f<=4;f++){
     var chips = floors[f].filter(i=>i.includes('microchip'));
@@ -56,80 +56,61 @@ const getHash = (floors) =>{
     }
     return 1;
   })
-  return pairs.map(p=>'('+p.m+','+p.g+')').toString();
+  return pairs.map(p=>'('+p.m+','+p.g+')').toString()+elevator;
 }
 
-const moveEquipment = (floors,previousFloors, elevator, moves) =>{
 
-  if(moves > 100)return;
-  if(floors[1].length === 0  && floors[2].length === 0  && floors[3].length === 0){
-        console.log(moves)
+function* powerSet(array, n) {
+  if (n == 0 || array.length == 0 || n > array.length) {
+    yield []
+    return
+  }
+
+  for (let i = 0; i < array.length - n + 1; i++) {
+    for (let rest of powerSet(array.slice(i + 1), n - 1)) {
+      rest.unshift(array[i])
+      yield rest
+    }
+  }
+}
+
+getValidMoves = (floors, elevator, previousFloors)=>{
+  const positions = [{elevator:elevator + 1,items:2},{elevator:elevator + 1,items:1}, {elevator:elevator - 1,items:2},{elevator:elevator - 1,items:1}];
+  var moves=[];
+  positions.forEach(p=>{
+    if(p.elevator > 0 && p.elevator < 5){
+      if(elevator - 1 === p.elevator && !floors[p.elevator].length){
+        return;
+      }
+      for (let objects of powerSet(floors[elevator], p.items)) {
+        var newFloors = JSON.parse(JSON.stringify(floors));
+        newFloors[elevator] = newFloors[elevator].filter(i=>!objects.some(o=>i===o));
+        newFloors[p.elevator] = newFloors[p.elevator].concat(objects);
+        if(isFloorsValid(newFloors,p.elevator,previousFloors)){
+          moves.push({floors:newFloors,elevator:p.elevator});
+        }
+      }
+    }
+  })
+  return moves;
+}
+
+var firstPart;
+const moveEquipment = (floors, elevator, previousFloors, moves) =>{
+  console.log(floors,elevator,moves)
+  if(moves > 35)return;
+  if(Object.keys(floors).reduce((total,i)=>i!==4 ? total + floors[i].length : total,0) === 0 || firstPart < moves){
+    console.log('Found',moves)
     return moves;
   }
-  var validMoves=[];
-  if(elevator>1){
-    for(var i=1;i<3;i++){
-      for(var j=0;j<floors[elevator].length;j++){
-        var newFloors = JSON.parse(JSON.stringify(floors));
-        var itemsToMove;
-        if(i>1){
-          for(var k=0;k<floors[elevator].length;k++){
-            if(k === j) break;
-            itemsToMove=[newFloors[elevator][j],newFloors[elevator][k]];
-            itemsToMove = itemsToMove.filter(i=>i!==undefined);
-            newFloors[elevator].splice(j,2)
-            newFloors[elevator - 1] = newFloors[elevator - 1].concat(itemsToMove);
-            if(isFloorsValid(newFloors,previousFloors)){
-              previousFloors.set(Object.keys(newFloors).map(i=>newFloors[i].toString()).toString(),i);
-              validMoves.push({floors:newFloors, elevator: elevator - 1});
-            }
-          }
-        }
-        else{
-          itemsToMove=[newFloors[elevator][j]];
-          newFloors[elevator].splice(j,1);
-          newFloors[elevator - 1] = newFloors[elevator - 1].concat(itemsToMove);
-          if(isFloorsValid(newFloors,previousFloors)){
-            previousFloors.set(Object.keys(newFloors).map(i=>newFloors[i].toString()).toString(),i);
-            validMoves.push({floors:newFloors, elevator: elevator - 1});
-          }
-        }
-      }
-    }
-  }
-  if(elevator<4){
-    for(var i=1;i<3;i++){
-      for(var j=0;j<floors[elevator].length;j++){
-        var newFloors = JSON.parse(JSON.stringify(floors));
-        var itemsToMove;
-        if(i>1){
-          for(var k=0;k<floors[elevator].length;k++){
-            if(k === j) break;
-            itemsToMove=[newFloors[elevator][j],newFloors[elevator][k]];
-            itemsToMove = itemsToMove.filter(i=>i!==undefined);
-            newFloors[elevator].splice(j,2)
-            newFloors[elevator + 1] = newFloors[elevator + 1].concat(itemsToMove);
-            if(isFloorsValid(newFloors,previousFloors)){
-              previousFloors.set(Object.keys(newFloors).map(i=>newFloors[i].toString()).toString(),i);
-              validMoves.push({floors:newFloors, elevator: elevator + 1});
-            }
-          }
-        }
-        else{
-          itemsToMove=[newFloors[elevator][j]];
-          newFloors[elevator].splice(j,1);
-          newFloors[elevator + 1] = newFloors[elevator + 1].concat(itemsToMove);
-          if(isFloorsValid(newFloors,previousFloors)){
-            previousFloors.set(Object.keys(newFloors).map(i=>newFloors[i].toString()).toString(),i);
-            validMoves.push({floors:newFloors, elevator: elevator + 1});
-          }
-        }
-      }
-    }
-  }
+
+  previousFloors.push(getHash(floors,elevator));
+  var validMoves=getValidMoves(floors,elevator,previousFloors);
+  
   validMoves.forEach(vm=>{
-    moveEquipment(vm.floors, previousFloors, vm.elevator, moves + 1);
+    var value = moveEquipment(vm.floors, vm.elevator, JSON.parse(JSON.stringify(previousFloors)), moves + 1);
+    firstPart = !firstPart || value < firstPart ? value : firstPart;
   })
 }
 
-moveEquipment(startingFloors, new Map(), 1, 0);
+moveEquipment(startingFloors, 1, [], 0);
