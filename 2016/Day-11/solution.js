@@ -79,14 +79,12 @@ getValidMoves = (floors, elevator, previousFloors)=>{
   var moves=[];
   positions.forEach(p=>{
     if(p.elevator > 0 && p.elevator < 5){
-      if(elevator - 1 === p.elevator && !floors[p.elevator].length){
-        return;
-      }
       for (let objects of powerSet(floors[elevator], p.items)) {
         var newFloors = JSON.parse(JSON.stringify(floors));
         newFloors[elevator] = newFloors[elevator].filter(i=>!objects.some(o=>i===o));
         newFloors[p.elevator] = newFloors[p.elevator].concat(objects);
         if(isFloorsValid(newFloors,p.elevator,previousFloors)){
+          previousFloors.push(getHash(floors,elevator));
           moves.push({floors:newFloors,elevator:p.elevator});
         }
       }
@@ -97,20 +95,21 @@ getValidMoves = (floors, elevator, previousFloors)=>{
 
 var firstPart;
 const moveEquipment = (floors, elevator, previousFloors, moves) =>{
-  console.log(floors,elevator,moves)
-  if(moves > 35)return;
-  if(Object.keys(floors).reduce((total,i)=>i!==4 ? total + floors[i].length : total,0) === 0 || firstPart < moves){
-    console.log('Found',moves)
-    return moves;
-  }
-
-  previousFloors.push(getHash(floors,elevator));
-  var validMoves=getValidMoves(floors,elevator,previousFloors);
+  var queue = [];
+  queue.push({floors:floors,elevator:elevator,moves:moves});
   
-  validMoves.forEach(vm=>{
-    var value = moveEquipment(vm.floors, vm.elevator, JSON.parse(JSON.stringify(previousFloors)), moves + 1);
-    firstPart = !firstPart || value < firstPart ? value : firstPart;
-  })
+  while(queue.length){
+    var step = queue.shift();
+    if(Object.keys(step.floors).reduce((total,i)=>i!==4 ? step.total + step.floors[i].length : total,0) === 0 || firstPart < step.moves){
+      console.log('Found',step.moves)
+      return step.moves;
+    }
+    var validMoves=getValidMoves(step.floors,step.elevator,previousFloors);
+    console.log(step.moves)
+    validMoves.forEach(vm=>{
+      queue.push({floors:vm.floors,elevator:vm.elevator,moves:step.moves+1});
+    })
+  }
 }
 
 moveEquipment(startingFloors, 1, [], 0);
