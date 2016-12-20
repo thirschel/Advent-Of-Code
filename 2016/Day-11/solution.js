@@ -13,7 +13,6 @@ input.forEach((i,j)=>{
   var parsed = parseInput(i);
   startingFloors[j+1] = parsed.equipment || [];
 })
-console.log(startingFloors);
 
 const isFloorsValid = (floors, elevator, previousFloors) =>{
   for(var f=1;f<=4;f++){
@@ -21,7 +20,7 @@ const isFloorsValid = (floors, elevator, previousFloors) =>{
     var generators = floors[f].filter(i=>!i.includes('microchip'));
     for(var c=0;c<chips.length;c++){
       if(generators.length > 0 && !generators.some(g=>g.includes(chips[c].split('-')[0]))){
-        return false
+        return false;
       }
     }
   }
@@ -39,7 +38,6 @@ const getHash = (floors,elevator) =>{
             }
         }
     })
-
   };
 	pairs.sort((a,b)=>{
   	if(b.m > a.m){
@@ -80,11 +78,12 @@ getValidMoves = (floors, elevator, previousFloors)=>{
   positions.forEach(p=>{
     if(p.elevator > 0 && p.elevator < 5){
       for (let objects of powerSet(floors[elevator], p.items)) {
+        if(!objects.length) continue;
         var newFloors = JSON.parse(JSON.stringify(floors));
         newFloors[elevator] = newFloors[elevator].filter(i=>!objects.some(o=>i===o));
         newFloors[p.elevator] = newFloors[p.elevator].concat(objects);
         if(isFloorsValid(newFloors,p.elevator,previousFloors)){
-          previousFloors.push(getHash(floors,elevator));
+          previousFloors.push(getHash(newFloors,p.elevator));
           moves.push({floors:newFloors,elevator:p.elevator});
         }
       }
@@ -96,20 +95,23 @@ getValidMoves = (floors, elevator, previousFloors)=>{
 var firstPart;
 const moveEquipment = (floors, elevator, previousFloors, moves) =>{
   var queue = [];
-  queue.push({floors:floors,elevator:elevator,moves:moves});
+  queue.push({floors:floors,elevator:elevator,moves:moves, history:[]});
   
-  while(queue.length){
+  while(queue.length && queue.length < 1000){
     var step = queue.shift();
-    if(Object.keys(step.floors).reduce((total,i)=>i!==4 ? step.total + step.floors[i].length : total,0) === 0 || firstPart < step.moves){
-      console.log('Found',step.moves)
+    if(Object.keys(step.floors).reduce((total,i)=>i!=="4" ? total + step.floors[i].length : total,0) === 0 || firstPart < step.moves){
       return step.moves;
     }
     var validMoves=getValidMoves(step.floors,step.elevator,previousFloors);
-    console.log(step.moves)
     validMoves.forEach(vm=>{
       queue.push({floors:vm.floors,elevator:vm.elevator,moves:step.moves+1});
     })
   }
 }
 
-moveEquipment(startingFloors, 1, [], 0);
+console.log('First part: ',moveEquipment(startingFloors, 1, [], 0));
+startingFloors[1].push('elerium generator');
+startingFloors[1].push('elerium-compatible microchip');
+startingFloors[1].push('dilithium generator');
+startingFloors[1].push('dilithium-compatible microchip');
+console.log('Second part: ',moveEquipment(startingFloors, 1, [], 0));
