@@ -46,7 +46,7 @@ for (var i=0;i<128;i++){
 	
 	var knotHash = calculateKnotHash(knotList.map(i=>i), asciiInput, 64).knotHash;
 	var binHash = knotHash.split('').reduce((a,k)=>a += padBinary(parseInt(k, 16).toString(2)),'');
-  var gridRow = binHash;
+  	var gridRow = binHash;
 	grid.push(gridRow.replace(/1/g,'#').replace(/0/g,'.').split(''));
 	totalUsed += binHash.split('').reduce((used,b)=>used+parseInt(b),0);
 }
