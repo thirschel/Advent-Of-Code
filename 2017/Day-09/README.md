@@ -25,6 +25,7 @@ Here are some self-contained pieces of garbage:
 Here are some examples of whole streams and the number of groups they contain:
 
 ```
+{% raw %}
 {}, 1 group.
 {{{}}}, 3 groups.
 {{},{}}, also 3 groups.
@@ -33,11 +34,13 @@ Here are some examples of whole streams and the number of groups they contain:
 {<a>,<a>,<a>,<a>}, 1 group.
 {{<a>},{<a>},{<a>},{<a>}}, 5 groups.
 {{<!>},{<!>},{<!>},{<a>}}, 2 groups (since all but the last > are canceled).
+{% endraw %}
 ```
 
 Your goal is to find the total score for all groups in your input. Each group is assigned a score which is one more than the score of the group that immediately contains it. (The outermost group gets a score of 1.)
 
 ```
+{% raw %}
 {}, score of 1.
 {{{}}}, score of 1 + 2 + 3 = 6.
 {{},{}}, score of 1 + 2 + 2 = 5.
@@ -46,6 +49,7 @@ Your goal is to find the total score for all groups in your input. Each group is
 {{<ab>},{<ab>},{<ab>},{<ab>}}, score of 1 + 2 + 2 + 2 + 2 = 9.
 {{<!!>},{<!!>},{<!!>},{<!!>}}, score of 1 + 2 + 2 + 2 + 2 = 9.
 {{<a!>},{<a!>},{<a!>},{<ab>}}, score of 1 + 2 = 3.
+{% endraw %}
 ```
 
 What is the total score for all groups in your input?
@@ -59,6 +63,7 @@ Now, you're ready to remove the garbage.
 To prove you've removed it, you need to count all of the characters within the garbage. The leading and trailing < and > don't count, nor do any canceled characters or the ! doing the canceling.
 
 ```
+{% raw %}
 <>, 0 characters.
 <random characters>, 17 characters.
 <<<<>, 3 characters.
@@ -66,6 +71,7 @@ To prove you've removed it, you need to count all of the characters within the g
 <!!>, 0 characters.
 <!!!>>, 0 characters.
 <{o"i!a,<{i<a>, 10 characters.
+{% endraw %}
 ```
 
 How many non-canceled characters are within the garbage in your puzzle input?
